@@ -20,12 +20,12 @@ jobs:
       - name: Install system packages
         run: |
           sudo apt update
-          sudo apt install -y git zip unzip wget openjdk-17-jdk python3-pip python3-setuptools python3-wheel build-essential libffi-dev libssl-dev autoconf libtool pkg-config zlib1g-dev
+          sudo apt install -y git zip unzip wget openjdk-17-jdk python3-pip python3-setuptools python3-wheel build-essential libffi-dev libssl-dev autoconf automake libtool libtool-bin pkg-config m4 cmake ninja-build gettext zlib1g-dev
 
       - name: Install Buildozer
         run: |
-          python3 -m pip install --upgrade pip
-          python3 -m pip install buildozer cython
+          python3 -m pip install --upgrade pip setuptools wheel
+          python3 -m pip install "cython<3" buildozer
 
       - name: Install Android SDK tools
         run: |
@@ -41,12 +41,14 @@ jobs:
           yes | "$SDK/cmdline-tools/latest/bin/sdkmanager" --sdk_root="$SDK" --licenses
           "$SDK/cmdline-tools/latest/bin/sdkmanager" --sdk_root="$SDK" "platform-tools" "platforms;android-35" "build-tools;35.0.0"
 
-      - name: Force Buildozer build tools version
+      - name: Force Buildozer versions
         run: |
           grep -q "android.build_tools_version" buildozer.spec && sed -i 's/android.build_tools_version.*/android.build_tools_version = 35.0.0/' buildozer.spec || echo "android.build_tools_version = 35.0.0" >> buildozer.spec
+          grep -q "android.ndk" buildozer.spec && sed -i 's/android.ndk.*/android.ndk = 25b/' buildozer.spec || echo "android.ndk = 25b" >> buildozer.spec
 
       - name: Build APK
         run: |
+          buildozer android clean
           yes | buildozer -v android debug
 
       - name: Upload APK
