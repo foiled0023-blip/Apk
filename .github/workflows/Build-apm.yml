@@ -51,6 +51,7 @@ jobs:
           grep -q "android.build_tools_version" buildozer.spec && sed -i 's/android.build_tools_version.*/android.build_tools_version = 35.0.0/' buildozer.spec || echo "android.build_tools_version = 35.0.0" >> buildozer.spec
           grep -q "android.ndk" buildozer.spec && sed -i 's/android.ndk.*/android.ndk = 25b/' buildozer.spec || echo "android.ndk = 25b" >> buildozer.spec
           grep -q "android.archs" buildozer.spec && sed -i 's/android.archs.*/android.archs = arm64-v8a/' buildozer.spec || echo "android.archs = arm64-v8a" >> buildozer.spec
+          grep -q "android.minapi" buildozer.spec && sed -i 's/android.minapi.*/android.minapi = 26/' buildozer.spec || echo "android.minapi = 26" >> buildozer.spec
 
       - name: Build APK
         run: |
