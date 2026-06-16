@@ -13,7 +13,7 @@ fullscreen = 0
 
 android.permissions = INTERNET,ACCESS_WIFI_STATE,CHANGE_WIFI_MULTICAST_STATE,ACCESS_NETWORK_STATE,WAKE_LOCK
 android.api = 35
-android.minapi = 23
+android.minapi = 26
 android.ndk = 25b
 android.archs = arm64-v8a
 android.accept_sdk_license = True
