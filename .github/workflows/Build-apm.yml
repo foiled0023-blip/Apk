@@ -35,11 +35,16 @@ jobs:
           unzip -q cmdtools.zip -d "$SDK/cmdline-tools"
           mv "$SDK/cmdline-tools/cmdline-tools" "$SDK/cmdline-tools/latest"
 
+          mkdir -p "$SDK/tools/bin"
+          ln -sfn "$SDK/cmdline-tools/latest/bin/sdkmanager" "$SDK/tools/bin/sdkmanager"
+          ln -sfn "$SDK/cmdline-tools/latest/bin/avdmanager" "$SDK/tools/bin/avdmanager"
+
           echo "$SDK/cmdline-tools/latest/bin" >> $GITHUB_PATH
+          echo "$SDK/tools/bin" >> $GITHUB_PATH
           echo "$SDK/platform-tools" >> $GITHUB_PATH
 
-          yes | "$SDK/cmdline-tools/latest/bin/sdkmanager" --sdk_root="$SDK" --licenses
-          "$SDK/cmdline-tools/latest/bin/sdkmanager" --sdk_root="$SDK" "platform-tools" "platforms;android-35" "build-tools;35.0.0"
+          yes | "$SDK/tools/bin/sdkmanager" --sdk_root="$SDK" --licenses
+          "$SDK/tools/bin/sdkmanager" --sdk_root="$SDK" "platform-tools" "platforms;android-35" "build-tools;35.0.0"
 
       - name: Force Buildozer versions
         run: |
