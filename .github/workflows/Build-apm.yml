@@ -55,7 +55,6 @@ jobs:
       - name: Build APK
         run: |
           set -o pipefail
-          buildozer android clean 2>&1 | tee clean-log.txt || true
           yes | buildozer -v android debug 2>&1 | tee buildozer-full-log.txt
 
       - name: Upload build logs
@@ -63,9 +62,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Build-Logs
-          path: |
-            buildozer-full-log.txt
-            clean-log.txt
+          path: buildozer-full-log.txt
 
       - name: Upload APK
         if: success()
