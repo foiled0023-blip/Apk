@@ -1,0 +1,6 @@
+Buildozer does not properly build Android APKs directly in normal Windows PowerShell.
+Use WSL Ubuntu or GitHub Actions.
+
+WSL commands:
+cd /mnt/c/Users/kamil/Downloads/BedrockBridgeProject
+./build_android_wsl.sh

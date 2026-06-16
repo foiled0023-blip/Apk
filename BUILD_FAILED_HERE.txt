@@ -1,0 +1,13 @@
+I attempted to build the APK inside the ChatGPT container.
+
+Buildozer installed, but the build environment cannot access the external Android build dependencies.
+
+First blocker:
+  fatal: unable to access 'https://github.com/kivy/python-for-android.git/': Could not resolve host: github.com
+
+After using the PyPI python-for-android wheel, next blocker:
+  Downloading https://archive.apache.org/dist/ant/binaries/apache-ant-1.9.4-bin.tar.gz
+  urllib.error.URLError: <urlopen error [Errno -3] Temporary failure in name resolution>
+
+So the APK cannot be produced in this environment because outbound internet access to GitHub/Apache/Android SDK sources is blocked.
+The project itself is still APK-ready. Use build_android_wsl.sh locally or the included GitHub Actions workflow to produce app-debug.apk.
