@@ -9,6 +9,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    env:
+      ANDROID_HOME: /home/runner/.buildozer/android/platform/android-sdk
+      ANDROID_SDK_ROOT: /home/runner/.buildozer/android/platform/android-sdk
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -16,18 +20,50 @@ jobs:
       - name: Install system packages
         run: |
           sudo apt update
-          sudo apt install -y git zip unzip openjdk-17-jdk python3-pip python3-setuptools python3-wheel build-essential libffi-dev libssl-dev
+          sudo apt install -y git zip unzip wget openjdk-17-jdk python3-pip python3-setuptools python3-wheel build-essential libffi-dev libssl-dev autoconf automake libtool libtool-bin libltdl-dev autoconf-archive pkg-config m4 cmake ninja-build gettext zlib1g-dev
 
       - name: Install Buildozer
         run: |
-          python3 -m pip install --upgrade pip
-          python3 -m pip install buildozer cython
+          python3 -m pip install --upgrade pip setuptools wheel
+          python3 -m pip install "cython<3" buildozer
+
+      - name: Install Android SDK tools
+        run: |
+          SDK="$ANDROID_HOME"
+          mkdir -p "$SDK/cmdline-tools"
+          wget https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O cmdtools.zip
+          unzip -q cmdtools.zip -d "$SDK/cmdline-tools"
+          mv "$SDK/cmdline-tools/cmdline-tools" "$SDK/cmdline-tools/latest"
+
+          echo "$SDK/cmdline-tools/latest/bin" >> $GITHUB_PATH
+          echo "$SDK/platform-tools" >> $GITHUB_PATH
+
+          yes | "$SDK/cmdline-tools/latest/bin/sdkmanager" --sdk_root="$SDK" --licenses
+          "$SDK/cmdline-tools/latest/bin/sdkmanager" --sdk_root="$SDK" "platform-tools" "platforms;android-35" "build-tools;35.0.0"
+
+      - name: Force Buildozer versions
+        run: |
+          grep -q "android.build_tools_version" buildozer.spec && sed -i 's/android.build_tools_version.*/android.build_tools_version = 35.0.0/' buildozer.spec || echo "android.build_tools_version = 35.0.0" >> buildozer.spec
+          grep -q "android.ndk" buildozer.spec && sed -i 's/android.ndk.*/android.ndk = 25b/' buildozer.spec || echo "android.ndk = 25b" >> buildozer.spec
+          grep -q "android.archs" buildozer.spec && sed -i 's/android.archs.*/android.archs = arm64-v8a/' buildozer.spec || echo "android.archs = arm64-v8a" >> buildozer.spec
 
       - name: Build APK
         run: |
-          buildozer -v android debug
+          set -o pipefail
+          buildozer android clean 2>&1 | tee clean-log.txt || true
+          yes | buildozer -v android debug 2>&1 | tee buildozer-full-log.txt
+
+      - name: Upload build logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Build-Logs
+          path: |
+            buildozer-full-log.txt
+            clean-log.txt
 
       - name: Upload APK
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: BedrockBridge-APK
